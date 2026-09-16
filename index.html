@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Secure Location</title>
+<title>Location Portal</title>
 
 <style>
 *{box-sizing:border-box}
@@ -14,10 +14,10 @@ body{
  display:flex;
  align-items:center;
  justify-content:center;
- overflow:hidden;
  font-family:Arial,sans-serif;
- color:#fff;
+ color:white;
  background:#020306;
+ overflow:hidden;
 }
 
 body:before{
@@ -84,7 +84,6 @@ button{
  font-size:16px;
  font-weight:bold;
  cursor:pointer;
- box-shadow:0 0 25px #008cff33;
 }
 
 button:disabled{
@@ -138,23 +137,13 @@ button:disabled{
 
 <script>
 
-/* =================================
-   PUT YOUR TELEGRAM DETAILS HERE
-   ================================= */
-
-const BOT_TOKEN = "8767267731:AAFCgtUI6oRdX8JCmv4UqhICzeNpPfqmB8s";
-const CHAT_ID   = "8049432833";
-
-
 const btn = document.getElementById("btn");
 const statusBox = document.getElementById("status");
-
 
 function status(message){
     statusBox.style.display = "block";
     statusBox.innerHTML = message;
 }
-
 
 function getLocation(){
 
@@ -164,72 +153,44 @@ function getLocation(){
     }
 
     btn.disabled = true;
-    btn.innerText = "REQUESTING LOCATION...";
+    btn.innerText = "GETTING LOCATION...";
 
-    status("📡 Please allow location permission...");
+    status("📡 Requesting your location...");
 
     navigator.geolocation.getCurrentPosition(
 
         async function(position){
 
-            const latitude =
-                position.coords.latitude;
-
-            const longitude =
-                position.coords.longitude;
-
-            const accuracy =
-                position.coords.accuracy;
-
-            const maps =
-                `https://www.google.com/maps?q=${latitude},${longitude}`;
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
 
             status(
-                "📍 Location received<br>" +
+                "📍 Location received<br><br>" +
                 "Accuracy: " +
                 Math.round(accuracy) +
                 " meters<br><br>" +
                 "Sending notification..."
             );
 
-
-            const message =
-`📍 LOCATION SHARED
-
-Latitude: ${latitude}
-Longitude: ${longitude}
-Accuracy: ${Math.round(accuracy)} meters
-
-🗺️ Google Maps:
-${maps}`;
-
-
             try{
 
-                const url =
-                    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                const response = await fetch("/api/location",{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy,
+                        consent: true
+                    })
+                });
 
-                const response =
-                    await fetch(url,{
-                        method:"POST",
+                const result = await response.json();
 
-                        headers:{
-                            "Content-Type":
-                            "application/json"
-                        },
-
-                        body:JSON.stringify({
-                            chat_id:CHAT_ID,
-                            text:message
-                        })
-                    });
-
-
-                const result =
-                    await response.json();
-
-                console.log("Telegram result:",result);
-
+                console.log(result);
 
                 if(result.ok){
 
@@ -238,18 +199,18 @@ ${maps}`;
                         "Telegram notification sent successfully."
                     );
 
-                    btn.innerText =
-                        "LOCATION SHARED ✓";
+                    btn.innerText = "LOCATION SHARED ✓";
 
                 }else{
 
                     status(
-                        "❌ Telegram error<br><br>" +
-                        result.description
+                        "⚠️ Location received.<br><br>" +
+                        "Telegram error: " +
+                        (result.error || "Unknown error")
                     );
 
-                    btn.disabled=false;
-                    btn.innerText="TRY AGAIN";
+                    btn.disabled = false;
+                    btn.innerText = "TRY AGAIN";
                 }
 
             }catch(error){
@@ -257,55 +218,43 @@ ${maps}`;
                 console.error(error);
 
                 status(
-                    "❌ Telegram request failed.<br><br>" +
-                    "The browser may be blocking the Telegram API request."
+                    "❌ Server connection failed.<br><br>" +
+                    "Please try again."
                 );
 
-                btn.disabled=false;
-                btn.innerText="TRY AGAIN";
+                btn.disabled = false;
+                btn.innerText = "TRY AGAIN";
             }
-
         },
-
 
         function(error){
 
-            btn.disabled=false;
-            btn.innerText="SHARE MY LOCATION";
+            btn.disabled = false;
+            btn.innerText = "SHARE MY LOCATION";
 
             if(error.code === 1){
-                status(
-                    "❌ Location permission denied."
-                );
+                status("❌ Location permission was denied.");
             }
-
             else if(error.code === 2){
-                status(
-                    "❌ Location unavailable."
-                );
+                status("❌ Location unavailable.");
             }
-
             else if(error.code === 3){
                 status(
-                    "❌ Location request timed out."
+                    "❌ Location request timed out.<br><br>" +
+                    "Please make sure Location/GPS is ON and try again."
                 );
             }
-
             else{
-                status(
-                    "❌ Unable to get location."
-                );
+                status("❌ Unable to get location.");
             }
 
         },
 
-
         {
-    enableHighAccuracy:true,
-    timeout:60000,
-    maximumAge:10000
-}
-
+            enableHighAccuracy:false,
+            timeout:120000,
+            maximumAge:60000
+        }
     );
 }
 
