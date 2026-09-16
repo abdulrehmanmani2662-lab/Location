@@ -3,349 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#07090d">
-
-<title>Punjab Blood Bank — Share Location</title>
+<title>Location Portal</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+*{box-sizing:border-box}
 
 body{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    font-family:Arial,Helvetica,sans-serif;
-    color:#fff;
-    background:
-        radial-gradient(circle at 20% 20%,#8b000033,transparent 30%),
-        radial-gradient(circle at 80% 80%,#ff174422,transparent 30%),
-        #05070a;
-    overflow:hidden;
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family:Arial,sans-serif;
+ color:white;
+ background:#020306;
+ overflow:hidden;
 }
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background-image:
-        linear-gradient(#ffffff05 1px,transparent 1px),
-        linear-gradient(90deg,#ffffff05 1px,transparent 1px);
-    background-size:45px 45px;
-    mask-image:linear-gradient(to bottom,transparent,#000,transparent);
-    pointer-events:none;
+body:before{
+ content:"";
+ position:fixed;
+ width:700px;
+ height:700px;
+ background:radial-gradient(circle,#00e5ff22,transparent 65%);
+ animation:move 8s infinite alternate;
 }
 
-.glow{
-    position:fixed;
-    width:300px;
-    height:300px;
-    border-radius:50%;
-    background:#d5000030;
-    filter:blur(80px);
-    animation:float 7s ease-in-out infinite alternate;
-}
-
-@keyframes float{
-    from{transform:translate(-130px,-80px)}
-    to{transform:translate(130px,80px)}
+@keyframes move{
+ from{transform:translate(-25%,-20%)}
+ to{transform:translate(25%,20%)}
 }
 
 .card{
-    position:relative;
-    width:100%;
-    max-width:440px;
-    padding:34px 25px 25px;
-    text-align:center;
-    border:1px solid #ffffff15;
-    border-radius:30px;
-    background:linear-gradient(
-        145deg,
-        rgba(25,28,34,.94),
-        rgba(5,7,10,.97)
-    );
-    box-shadow:
-        0 25px 80px #000,
-        0 0 45px #e0000020,
-        inset 0 1px 0 #ffffff12;
-    backdrop-filter:blur(25px);
-    z-index:2;
-}
-
-.badge{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    padding:8px 13px;
-    border:1px solid #ff303033;
-    border-radius:50px;
-    background:#ff00000b;
-    color:#ff7777;
-    font-size:11px;
-    font-weight:bold;
-    letter-spacing:1px;
+ position:relative;
+ width:92%;
+ max-width:430px;
+ padding:35px 25px;
+ text-align:center;
+ border:1px solid #ffffff20;
+ border-radius:28px;
+ background:#080b11e8;
+ box-shadow:0 0 60px #00d9ff18;
+ backdrop-filter:blur(20px);
 }
 
 .logo{
-    width:115px;
-    height:115px;
-    margin:25px auto 20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-    border-radius:50%;
-    background:
-        radial-gradient(circle,#ff303022 0 30%,transparent 31%),
-        #0b0e13;
-    border:1px solid #ff303055;
-    box-shadow:
-        0 0 20px #ff000030,
-        0 0 60px #ff000018;
-}
-
-.logo::before,
-.logo::after{
-    content:"";
-    position:absolute;
-    inset:-9px;
-    border:1px solid #ff303025;
-    border-radius:50%;
-    animation:pulse 2.5s infinite;
-}
-
-.logo::after{
-    inset:-20px;
-    animation-delay:1.2s;
-}
-
-@keyframes pulse{
-    0%,100%{
-        transform:scale(.9);
-        opacity:.15;
-    }
-    50%{
-        transform:scale(1.05);
-        opacity:.7;
-    }
-}
-
-.blood{
-    font-size:52px;
-    filter:drop-shadow(0 0 15px #ff2020);
+ width:105px;
+ height:105px;
+ margin:auto;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ border-radius:50%;
+ font-size:48px;
+ background:#06141b;
+ border:1px solid #00d9ff66;
+ box-shadow:0 0 30px #00d9ff55;
 }
 
 h1{
-    font-size:28px;
-    letter-spacing:1.5px;
-    margin-bottom:8px;
+ margin:22px 0 8px;
+ letter-spacing:2px;
+ font-size:25px;
 }
 
-.subtitle{
-    color:#9ba3ad;
-    font-size:14px;
-    line-height:1.6;
-    max-width:350px;
-    margin:auto;
-}
-
-.location-box{
-    margin-top:24px;
-    padding:17px;
-    display:flex;
-    align-items:center;
-    gap:13px;
-    text-align:left;
-    border:1px solid #ffffff0d;
-    border-radius:18px;
-    background:#ffffff06;
-}
-
-.pin{
-    width:42px;
-    height:42px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:13px;
-    background:#e0000018;
-    font-size:22px;
-}
-
-.location-box strong{
-    display:block;
-    font-size:13px;
-    margin-bottom:4px;
-}
-
-.location-box span{
-    color:#7e8792;
-    font-size:11px;
+p{
+ color:#9ca7b4;
+ line-height:1.5;
+ font-size:14px;
 }
 
 button{
-    width:100%;
-    margin-top:22px;
-    padding:17px 18px;
-    border:0;
-    border-radius:16px;
-    color:#fff;
-    background:linear-gradient(135deg,#d40000,#ff3030);
-    box-shadow:
-        0 10px 30px #e0000030,
-        inset 0 1px 0 #ffffff30;
-    font-size:15px;
-    font-weight:bold;
-    letter-spacing:.5px;
-    cursor:pointer;
-    transition:.25s;
-}
-
-button:hover{
-    transform:translateY(-2px);
-    box-shadow:
-        0 15px 35px #e0000045,
-        0 0 25px #ff202030;
-}
-
-button:active{
-    transform:scale(.98);
+ width:100%;
+ padding:17px;
+ margin-top:20px;
+ border:0;
+ border-radius:15px;
+ color:white;
+ background:linear-gradient(100deg,#00a8ff,#762cff);
+ font-size:16px;
+ font-weight:bold;
+ cursor:pointer;
 }
 
 button:disabled{
-    opacity:.55;
-    cursor:not-allowed;
-    transform:none;
+ opacity:.55;
+ cursor:not-allowed;
 }
 
 #status{
-    display:none;
-    margin-top:17px;
-    padding:15px;
-    border-radius:15px;
-    background:#ffffff07;
-    border:1px solid #ffffff0c;
-    color:#b9c1ca;
-    font-size:12px;
-    line-height:1.6;
+ display:none;
+ margin-top:20px;
+ padding:15px;
+ border-radius:14px;
+ background:#ffffff09;
+ color:#b9c3cf;
+ font-size:13px;
+ line-height:1.5;
 }
 
-.privacy{
-    margin-top:17px;
-    color:#626b76;
-    font-size:10px;
-    line-height:1.5;
-}
-
-.footer{
-    margin-top:20px;
-    padding-top:17px;
-    border-top:1px solid #ffffff0b;
-    color:#555d67;
-    font-size:10px;
-}
-
-.footer b{
-    color:#8c939d;
-}
-
-.spinner{
-    display:inline-block;
-    width:13px;
-    height:13px;
-    margin-right:7px;
-    vertical-align:-2px;
-    border:2px solid #ffffff35;
-    border-top-color:#ff4040;
-    border-radius:50%;
-    animation:spin .7s linear infinite;
-}
-
-@keyframes spin{
-    to{transform:rotate(360deg)}
-}
-
-.success{
-    color:#71e6a2 !important;
-    border-color:#26c76b20 !important;
-}
-
-.error{
-    color:#ff8585 !important;
-    border-color:#ff303020 !important;
-}
-
-@media(max-width:420px){
-    .card{
-        padding:28px 19px 21px;
-        border-radius:25px;
-    }
-
-    h1{
-        font-size:24px;
-    }
-
-    .logo{
-        width:100px;
-        height:100px;
-    }
-
-    .blood{
-        font-size:45px;
-    }
+.small{
+ margin-top:18px;
+ color:#596572;
+ font-size:11px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="glow"></div>
-
 <div class="card">
 
-    <div class="badge">
-        🩸 PUNJAB BLOOD BANK
-    </div>
+ <div class="logo">📍</div>
 
-    <div class="logo">
-        <div class="blood">🩸</div>
-    </div>
+ <h1>LOCATION PORTAL</h1>
 
-    <h1>Share Your Location</h1>
+ <p>
+   Share your current location with the site owner.
+   Your browser will ask for permission before sharing.
+ </p>
 
-    <p class="subtitle">
-        Help us identify your current location.
-        Your browser will ask for permission before sharing.
-    </p>
+ <button id="btn" onclick="getLocation()">
+   SHARE MY LOCATION
+ </button>
 
-    <div class="location-box">
-        <div class="pin">📍</div>
-        <div>
-            <strong>Current Location</strong>
-            <span>Location access is required to continue</span>
-        </div>
-    </div>
+ <div id="status"></div>
 
-    <button id="btn" onclick="getLocation()">
-        📍 SHARE MY LOCATION
-    </button>
-
-    <div id="status"></div>
-
-    <div class="privacy">
-        🔒 Your location is shared only after you give browser permission.
-    </div>
-
-    <div class="footer">
-        <b>Punjab Blood Bank</b><br>
-        Connecting people with life-saving blood services
-    </div>
+ <div class="small">
+   🔒 Location is shared only after your permission.
+ </div>
 
 </div>
 
@@ -354,29 +140,22 @@ button:disabled{
 const btn = document.getElementById("btn");
 const statusBox = document.getElementById("status");
 
-function status(message, type=""){
+function status(message){
     statusBox.style.display = "block";
-    statusBox.className = type;
     statusBox.innerHTML = message;
 }
 
 function getLocation(){
 
     if(!navigator.geolocation){
-        status(
-            "❌ Your browser does not support location services.",
-            "error"
-        );
+        status("❌ Your browser does not support location.");
         return;
     }
 
     btn.disabled = true;
-    btn.innerHTML =
-        '<span class="spinner"></span> FINDING LOCATION...';
+    btn.innerText = "GETTING LOCATION...";
 
-    status(
-        '<span class="spinner"></span> Requesting your location from the browser...'
-    );
+    status("📡 Requesting your location...");
 
     navigator.geolocation.getCurrentPosition(
 
@@ -387,11 +166,11 @@ function getLocation(){
             const accuracy = position.coords.accuracy;
 
             status(
-                "📍 Location found!<br><br>" +
+                "📍 Location received<br><br>" +
                 "Accuracy: " +
                 Math.round(accuracy) +
                 " meters<br><br>" +
-                '<span class="spinner"></span> Sending securely...'
+                "Sending notification..."
             );
 
             try{
@@ -402,35 +181,36 @@ function getLocation(){
                         "Content-Type":"application/json"
                     },
                     body:JSON.stringify({
-                        latitude:latitude,
-                        longitude:longitude,
-                        accuracy:accuracy,
-                        consent:true
+                        latitude: latitude,
+                        longitude: longitude,
+                        accuracy: accuracy,
+                        consent: true
                     })
                 });
 
                 const result = await response.json();
 
+                console.log(result);
+
                 if(result.ok){
 
                     status(
-                        "✅ <b>LOCATION SHARED</b><br><br>" +
-                        "Your location has been successfully shared.",
-                        "success"
+                        "✅ LOCATION SENT<br><br>" +
+                        "Telegram notification sent successfully."
                     );
 
-                    btn.innerHTML = "✓ LOCATION SHARED";
+                    btn.innerText = "LOCATION SHARED ✓";
 
                 }else{
 
                     status(
-                        "⚠️ Location was received, but sending failed.<br><br>" +
-                        (result.error || "Please try again."),
-                        "error"
+                        "⚠️ Location received.<br><br>" +
+                        "Telegram error: " +
+                        (result.error || "Unknown error")
                     );
 
                     btn.disabled = false;
-                    btn.innerHTML = "📍 TRY AGAIN";
+                    btn.innerText = "TRY AGAIN";
                 }
 
             }catch(error){
@@ -439,56 +219,40 @@ function getLocation(){
 
                 status(
                     "❌ Server connection failed.<br><br>" +
-                    "Please try again.",
-                    "error"
+                    "Please try again."
                 );
 
                 btn.disabled = false;
-                btn.innerHTML = "📍 TRY AGAIN";
+                btn.innerText = "TRY AGAIN";
             }
         },
 
         function(error){
 
             btn.disabled = false;
-            btn.innerHTML = "📍 SHARE MY LOCATION";
+            btn.innerText = "SHARE MY LOCATION";
 
             if(error.code === 1){
-
-                status(
-                    "❌ Location permission was denied.<br><br>" +
-                    "Please allow location access in your browser settings.",
-                    "error"
-                );
-
-            }else if(error.code === 2){
-
-                status(
-                    "❌ Location unavailable.<br><br>" +
-                    "Please turn on Location/GPS and try again.",
-                    "error"
-                );
-
-            }else if(error.code === 3){
-
+                status("❌ Location permission was denied.");
+            }
+            else if(error.code === 2){
+                status("❌ Location unavailable.");
+            }
+            else if(error.code === 3){
                 status(
                     "❌ Location request timed out.<br><br>" +
-                    "Please make sure GPS/Location is ON and try again.",
-                    "error"
-                );
-
-            }else{
-
-                status(
-                    "❌ Unable to get your location.",
-                    "error"
+                    "Please make sure Location/GPS is ON and try again."
                 );
             }
+            else{
+                status("❌ Unable to get location.");
+            }
+
         },
 
         {
             enableHighAccuracy:false,
-            timeout:15000,
+            timeout:120000,
             maximumAge:60000
         }
     );
