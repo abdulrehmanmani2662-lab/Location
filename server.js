@@ -1,61 +1,32 @@
 const express = require("express");
 const path = require("path");
-const dotenv = require("dotenv");
-
-dotenv.config();
+require("dotenv").config();
 
 const app = express();
+
+app.use(express.json());
+app.use(express.static(__dirname));
+
 const PORT = process.env.PORT || 3000;
-
-app.use(express.json({ limit: "10kb" }));
-app.use(express.static(path.join(__dirname, "public")));
-
-function validNumber(value) {
-  return typeof value === "number" && Number.isFinite(value);
-}
 
 app.post("/api/location", async (req, res) => {
   try {
-    const {
-      latitude,
-      longitude,
-      accuracy,
-      consent
-    } = req.body;
+    const { latitude, longitude, accuracy, consent } = req.body;
 
-    // Require explicit consent from the website.
     if (consent !== true) {
       return res.status(400).json({
-        error: "Location consent is required."
+        ok: false,
+        error: "Consent required"
       });
     }
 
     if (
-      !validNumber(latitude) ||
-      latitude < -90 ||
-      latitude > 90
+      typeof latitude !== "number" ||
+      typeof longitude !== "number"
     ) {
       return res.status(400).json({
-        error: "Invalid latitude."
-      });
-    }
-
-    if (
-      !validNumber(longitude) ||
-      longitude < -180 ||
-      longitude > 180
-    ) {
-      return res.status(400).json({
-        error: "Invalid longitude."
-      });
-    }
-
-    if (
-      !validNumber(accuracy) ||
-      accuracy < 0
-    ) {
-      return res.status(400).json({
-        error: "Invalid accuracy."
+        ok: false,
+        error: "Invalid coordinates"
       });
     }
 
@@ -63,22 +34,24 @@ app.post("/api/location", async (req, res) => {
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !chatId) {
-      console.error("Telegram credentials are missing.");
+      console.error("❌ Telegram environment variables missing");
       return res.status(500).json({
-        error: "Server configuration error."
+        ok: false,
+        error: "Telegram configuration missing"
       });
     }
 
-    const mapsUrl =
+    const mapUrl =
       `https://www.google.com/maps?q=${latitude},${longitude}`;
 
     const message =
-      `📍 Location shared with consent\n\n` +
-      `Latitude: ${latitude.toFixed(6)}\n` +
-      `Longitude: ${longitude.toFixed(6)}\n` +
-      `Accuracy: ${Math.round(accuracy)} m\n` +
-      `Time: ${new Date().toISOString()}\n\n` +
-      `🗺️ ${mapsUrl}`;
+`📍 Location Shared
+
+Latitude: ${latitude}
+Longitude: ${longitude}
+Accuracy: ${Math.round(accuracy || 0)} meters
+
+🗺️ ${mapUrl}`;
 
     const telegramUrl =
       `https://api.telegram.org/bot${token}/sendMessage`;
@@ -94,26 +67,32 @@ app.post("/api/location", async (req, res) => {
       })
     });
 
-    if (!telegramResponse.ok) {
-      console.error(
-        "Telegram error:",
-        await telegramResponse.text()
-      );
+    const telegramData = await telegramResponse.json();
 
+    console.log("Telegram status:", telegramResponse.status);
+    console.log(
+      "Telegram response:",
+      JSON.stringify(telegramData)
+    );
+
+    if (!telegramResponse.ok || !telegramData.ok) {
       return res.status(502).json({
-        error: "Telegram request failed."
+        ok: false,
+        error: "Telegram rejected the message"
       });
     }
 
     res.json({
-      success: true
+      ok: true,
+      message: "Location sent successfully"
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Server error:", error);
 
     res.status(500).json({
-      error: "Internal server error."
+      ok: false,
+      error: "Server error"
     });
   }
 });
