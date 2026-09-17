@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
 
@@ -6,13 +7,13 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.use(express.static(__dirname));
 
-app.post("/api/location", async (req,res) => {
-
-    try{
+app.post("/api/location", async (req, res) => {
+    try {
 
         const {
             latitude,
@@ -21,33 +22,32 @@ app.post("/api/location", async (req,res) => {
             consent
         } = req.body;
 
-        if(consent !== true){
+        if (consent !== true) {
             return res.status(400).json({
-                ok:false,
-                error:"Location consent required"
+                ok: false,
+                error: "Location consent required"
             });
         }
 
-        if(
+        if (
             typeof latitude !== "number" ||
             typeof longitude !== "number"
-        ){
+        ) {
             return res.status(400).json({
-                ok:false,
-                error:"Invalid location data"
+                ok: false,
+                error: "Invalid location data"
             });
         }
 
         const token = process.env.TELEGRAM_BOT_TOKEN;
         const chatId = process.env.TELEGRAM_CHAT_ID;
 
-        if(!token || !chatId){
-
+        if (!token || !chatId) {
             console.error("Telegram variables missing");
 
             return res.status(500).json({
-                ok:false,
-                error:"Telegram configuration missing"
+                ok: false,
+                error: "Telegram configuration missing"
             });
         }
 
@@ -67,15 +67,15 @@ ${map}`;
         const telegramResponse = await fetch(
             `https://api.telegram.org/bot${token}/sendMessage`,
             {
-                method:"POST",
+                method: "POST",
 
-                headers:{
-                    "Content-Type":"application/json"
+                headers: {
+                    "Content-Type": "application/json"
                 },
 
-                body:JSON.stringify({
-                    chat_id:chatId,
-                    text:message
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
                 })
             }
         );
@@ -93,10 +93,9 @@ ${map}`;
             JSON.stringify(telegramData)
         );
 
-        if(!telegramData.ok){
-
+        if (!telegramData.ok) {
             return res.status(502).json({
-                ok:false,
+                ok: false,
                 error:
                     telegramData.description ||
                     "Telegram rejected request"
@@ -104,21 +103,21 @@ ${map}`;
         }
 
         return res.json({
-            ok:true
+            ok: true
         });
 
-    }catch(error){
+    } catch (error) {
 
-        console.error("Server error:",error);
+        console.error("Server error:", error);
 
         return res.status(500).json({
-            ok:false,
-            error:"Server error"
+            ok: false,
+            error: "Server error"
         });
     }
 });
 
-app.listen(PORT,()=>{
+app.listen(PORT, () => {
     console.log(
         `Server running on port ${PORT}`
     );
